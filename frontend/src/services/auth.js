@@ -15,10 +15,12 @@ export const authService = {
   },
 
   logout: () => {
-    localStorage.removeItem('token');
+    localStorage.clear();
+    window.location.href = '/login';
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    return !!token;
   }
 }; 

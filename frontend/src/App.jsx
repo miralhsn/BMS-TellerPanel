@@ -18,11 +18,17 @@ const ChequeProcessing = lazy(() => import('./pages/Cheques/ChequeProcessing'));
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
 
   useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
+    const checkAuth = () => {
+      const isAuth = authService.isAuthenticated();
+      setIsAuthenticated(isAuth);
+      setIsLoading(false);
+    };
+    checkAuth();
   }, []);
 
   const handleLoginSuccess = () => {
@@ -89,42 +95,59 @@ function App() {
     </div>
   );
 
-  if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
     <Router>
-      <div className="flex min-h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex-1">
-          <header className="bg-white shadow-sm">
-            <div className="container mx-auto px-4 py-4 flex justify-end items-center space-x-4">
-              <NotificationDropdown />
-              <button
-                onClick={handleLogout}
-                className="text-red-500 hover:text-red-600"
-              >
-                Logout
-              </button>
-            </div>
-          </header>
+      <Routes>
+        <Route path="/" element={<Navigate to={isAuthenticated ? "/customers" : "/login"} replace />} />
+        
+        <Route 
+          path="/login" 
+          element={
+            isAuthenticated ? 
+              <Navigate to="/customers" replace /> : 
+              <Login onLoginSuccess={handleLoginSuccess} />
+          } 
+        />
+        
+        <Route
+          element={
+            isAuthenticated ? (
+              <div className="flex min-h-screen bg-gray-100">
+                <Sidebar />
+                <div className="flex-1">
+                  <header className="bg-white shadow-sm">
+                    <div className="container mx-auto px-4 py-4 flex justify-end items-center space-x-4">
+                      <NotificationDropdown />
+                      <button onClick={handleLogout} className="text-red-500 hover:text-red-600">
+                        Logout
+                      </button>
+                    </div>
+                  </header>
 
-          <main className="container mx-auto px-4 py-8">
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Navigate to="/customers" replace />} />
-                <Route path="/customers" element={<CustomerManagement />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/transactions" element={<Transactions />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/cheques" element={<ChequeProcessing />} />
-                <Route path="/balance-inquiry" element={<BalanceInquiry />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-      </div>
+                  <main className="container mx-auto px-4 py-8">
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Routes>
+                        <Route path="/customers" element={<CustomerManagement />} />
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/transactions" element={<Transactions />} />
+                        <Route path="/cheques" element={<ChequeProcessing />} />
+                        <Route path="/balance-inquiry" element={<BalanceInquiry />} />
+                      </Routes>
+                    </Suspense>
+                  </main>
+                </div>
+              </div>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+          path="/*"
+        />
+      </Routes>
     </Router>
   );
 }
