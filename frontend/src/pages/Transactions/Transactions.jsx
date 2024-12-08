@@ -5,6 +5,7 @@ import CashTransaction from '../../components/CashTransaction';
 import { customerService } from '../../services/api';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import TransactionReceipt from '../../components/Receipt';
+import Notifications from '../../components/Notifications';
 
 const TransactionRow = ({ transaction, customer }) => {
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -321,6 +322,10 @@ const Transactions = () => {
               )}
             </>
           )}
+
+          <div className="mt-6">
+            <Notifications customerId={selectedCustomer._id} />
+          </div>
         </div>
       )}
 

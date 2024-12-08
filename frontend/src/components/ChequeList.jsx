@@ -28,10 +28,12 @@ const ChequeList = ({ customerId, onChequeProcessed }) => {
     try {
       await customerService.processCheque(chequeId, { status, rejectionReason });
       loadCheques();
-      onChequeProcessed();
+      if (onChequeProcessed) {
+        onChequeProcessed();
+      }
     } catch (err) {
       console.error('Process cheque error:', err);
-      // Handle error (show message to user)
+      alert(err.response?.data?.message || 'Failed to process cheque');
     }
   };
 

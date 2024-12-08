@@ -45,7 +45,7 @@ const ChequeProcessing = () => {
               </div>
             </div>
           </div>
-
+          
           <ChequeList 
             customerId={selectedCustomer._id} 
             onChequeProcessed={() => {

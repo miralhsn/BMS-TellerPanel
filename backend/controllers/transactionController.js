@@ -4,6 +4,7 @@ const createError = require('http-errors');
 const emailService = require('../services/emailService');
 const TRANSACTION_LIMITS = require('../config/constants');
 const moment = require('moment');
+const Notification = require('../models/Notification');
 
 const transactionController = {
   processTransaction: async (req, res, next) => {
@@ -77,6 +78,20 @@ const transactionController = {
         // Update customer balance
         customer.balance = newBalance;
         await customer.save();
+
+        // Create notification
+        const notification = new Notification({
+          customerId: transaction.customerId,
+          type: 'transaction',
+          status: 'success',
+          message: `${transaction.type === 'deposit' ? 'Deposit' : 'Withdrawal'} processed successfully`,
+          details: {
+            transactionId: transaction._id,
+            amount: transaction.amount
+          }
+        });
+
+        await notification.save();
 
         res.status(201).json({
           status: 'success',

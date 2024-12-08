@@ -1,6 +1,7 @@
 const Cheque = require('../models/Cheque');
 const Customer = require('../models/Customer');
 const Transaction = require('../models/Transaction');
+const Notification = require('../models/Notification');
 const createError = require('http-errors');
 
 const chequeController = {
@@ -102,6 +103,22 @@ const chequeController = {
       } else {
         await cheque.save();
       }
+
+      const notification = new Notification({
+        customerId: cheque.customerId,
+        type: 'cheque',
+        status: status,
+        message: status === 'rejected' 
+          ? `Cheque #${cheque.chequeNumber} was rejected`
+          : `Cheque #${cheque.chequeNumber} has been cleared`,
+        details: {
+          chequeId: cheque._id,
+          amount: cheque.amount,
+          reason: status === 'rejected' ? rejectionReason : undefined
+        }
+      });
+
+      await notification.save();
 
       res.json({
         status: 'success',

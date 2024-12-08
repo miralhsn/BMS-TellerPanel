@@ -7,6 +7,7 @@ const userRoutes = require('./user');
 const customerRoutes = require('./customer');
 const transactionRoutes = require('./transaction');
 const chequeRoutes = require('./cheque');
+const notificationRoutes = require('./notification');
 
 // Define route prefixes
 const routes = [
@@ -29,6 +30,10 @@ const routes = [
   {
     path: '/cheques',
     route: chequeRoutes
+  },
+  {
+    path: '/notifications',
+    route: notificationRoutes
   }
 ];
 

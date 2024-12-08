@@ -106,6 +106,26 @@ export const customerService = {
   sendTransactionReceipt: async (transactionId, email) => {
     const response = await api.post(`/transactions/${transactionId}/receipt`, { email });
     return response.data;
+  },
+
+  getNotifications: async (customerId) => {
+    const response = await api.get(`/notifications/customer/${customerId}`);
+    return response.data;
+  },
+
+  markNotificationAsRead: async (notificationId) => {
+    const response = await api.put(`/notifications/${notificationId}/read`);
+    return response.data;
+  },
+
+  getUnreadNotificationCount: async (customerId) => {
+    const response = await api.get(`/notifications/customer/${customerId}/unread`);
+    return response.data;
+  },
+
+  getAllNotifications: async () => {
+    const response = await api.get('/notifications');
+    return response.data;
   }
 };
 

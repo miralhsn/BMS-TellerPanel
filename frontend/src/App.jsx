@@ -9,6 +9,7 @@ import { authService } from './services/auth';
 import AddCustomer from './components/AddCustomer';
 import CustomerList from './components/CustomerList';
 import BalanceInquiry from './components/BalanceInquiry';
+import NotificationDropdown from './components/NotificationDropdown';
 
 // Placeholder components for other pages
 const Reports = () => <div className="p-6">Reports Page (Coming Soon)</div>;
@@ -98,7 +99,8 @@ function App() {
         <Sidebar />
         <div className="flex-1">
           <header className="bg-white shadow-sm">
-            <div className="container mx-auto px-4 py-4 flex justify-end">
+            <div className="container mx-auto px-4 py-4 flex justify-end items-center space-x-4">
+              <NotificationDropdown />
               <button
                 onClick={handleLogout}
                 className="text-red-500 hover:text-red-600"
