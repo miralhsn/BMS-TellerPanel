@@ -4,6 +4,9 @@ const router = express.Router();
 // Import all route files
 const authRoutes = require('./auth');
 const userRoutes = require('./user');
+const customerRoutes = require('./customer');
+const transactionRoutes = require('./transaction');
+const chequeRoutes = require('./cheque');
 
 // Define route prefixes
 const routes = [
@@ -14,8 +17,19 @@ const routes = [
   {
     path: '/users',
     route: userRoutes
+  },
+  {
+    path: '/customers',
+    route: customerRoutes
+  },
+  {
+    path: '/transactions',
+    route: transactionRoutes
+  },
+  {
+    path: '/cheques',
+    route: chequeRoutes
   }
-  // Add new routes here
 ];
 
 // Register all routes with their prefixes

@@ -89,7 +89,7 @@ app.use((req, res, next) => {
   next(createError(404, 'Route not found'));
 });
 
-// Global error handler
+// Error handling middleware (should be last)
 app.use(errorHandler);
 
 // Server information on startup

@@ -1,18 +1,26 @@
 const jwt = require('jsonwebtoken');
+const createError = require('http-errors');
 const config = require('../config/config');
 
-module.exports = (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    
+
     if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
+      throw createError(401, 'Authentication required');
     }
 
     const decoded = jwt.verify(token, config.jwtSecret);
     req.user = decoded;
+    
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    if (error.name === 'JsonWebTokenError') {
+      next(createError(401, 'Invalid token'));
+    } else {
+      next(error);
+    }
   }
 };
+
+module.exports = auth;

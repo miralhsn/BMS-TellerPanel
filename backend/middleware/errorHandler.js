@@ -1,10 +1,19 @@
 const errorHandler = (err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  
+  console.error(err.stack);
+
+  // Default error
+  let statusCode = err.status || 500;
+  let message = err.message || 'Internal Server Error';
+
+  // Handle specific errors
+  if (err.name === 'ValidationError') {
+    statusCode = 400;
+    message = err.message;
+  }
+
   res.status(statusCode).json({
     status: 'error',
-    statusCode,
-    message: err.message,
+    message,
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };

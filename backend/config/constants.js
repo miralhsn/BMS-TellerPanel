@@ -1,0 +1,11 @@
+const TRANSACTION_LIMITS = {
+  CASH: {
+    MAX_AMOUNT: 5000,
+    MAX_WITHDRAWALS_PER_HOUR: 3
+  },
+  CHEQUE: {
+    MAX_AMOUNT: 10000
+  }
+};
+
+module.exports = TRANSACTION_LIMITS; 
