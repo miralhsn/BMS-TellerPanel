@@ -8,8 +8,7 @@ const Sidebar = () => {
     { path: '/search', label: 'Search Customers', icon: '🔍' },
     { path: '/balance-inquiry', label: 'Balance Inquiry', icon: '💰' },
     { path: '/transactions', label: 'Transactions', icon: '💳' },
-    { path: '/cheques', label: 'Cheque Processing', icon: '📝' },
-    { path: '/reports', label: 'Reports', icon: '📈' }
+    { path: '/cheques', label: 'Cheque Processing', icon: '📝' }
   ];
 
   return (
