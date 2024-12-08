@@ -33,14 +33,102 @@ const TransactionRow = ({ transaction, customer }) => {
   };
 
   return (
-    <tr className="border-t">
-      <td className="px-4 py-2">
-        {new Date(transaction.date).toLocaleDateString()}
+    <tr className="border-t hover:bg-gray-50">
+      {/* Mobile View - Combined Info */}
+      <td className="block sm:hidden px-4 py-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="font-medium">{new Date(transaction.date).toLocaleDateString()}</div>
+            <div className="text-sm text-gray-600 capitalize">{transaction.type}</div>
+            {transaction.description && (
+              <div className="text-sm text-gray-500">{transaction.description}</div>
+            )}
+          </div>
+          <div className="text-right">
+            <div className={`font-medium ${
+              transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+            </div>
+            <div className="text-sm text-gray-600">
+              Balance: ${transaction.balanceAfter.toFixed(2)}
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 flex justify-between items-center">
+          <div className="text-xs text-gray-500">
+            {transaction._id.toString().replace(/^[0-9a-f]{24}$/, id => `TXN${id.substr(-6).toUpperCase()}`)}
+          </div>
+          <div className="flex items-center space-x-2 relative">
+            <PDFDownloadLink
+              document={<TransactionReceipt transaction={transaction} customer={customer} />}
+              fileName={`receipt_${transaction._id}.pdf`}
+              className="text-blue-500 hover:text-blue-700"
+            >
+              {({ loading }) => (
+                <button className="p-1 hover:bg-gray-100 rounded" title="Download Receipt">
+                  📄
+                </button>
+              )}
+            </PDFDownloadLink>
+            <button
+              onClick={() => setShowEmailForm(!showEmailForm)}
+              className="p-1 hover:bg-gray-100 rounded"
+              title="Email Receipt"
+            >
+              ✉️
+            </button>
+
+            {/* Email Form Popup */}
+            {showEmailForm && (
+              <div className="absolute right-0 top-8 bg-white p-4 rounded-lg shadow-lg border z-50 w-64">
+                <form onSubmit={handleSendEmail} className="space-y-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter email"
+                    className="w-full p-2 border rounded-md text-sm"
+                    required
+                  />
+                  {error && <div className="text-red-500 text-xs">{error}</div>}
+                  {success && <div className="text-green-500 text-xs">Sent successfully!</div>}
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowEmailForm(false);
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 disabled:bg-blue-300"
+                    >
+                      {sending ? 'Sending...' : 'Send'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
       </td>
-      <td className="px-4 py-2">
-        {transaction._id.toString().replace(/^[0-9a-f]{24}$/, id => `TXN${id.substr(-6).toUpperCase()}`)}
+
+      {/* Desktop View - Separate Columns */}
+      <td className="hidden sm:table-cell px-4 py-2 whitespace-nowrap">
+        <div className="text-sm">{new Date(transaction.date).toLocaleDateString()}</div>
       </td>
-      <td className="px-4 py-2">
+      <td className="hidden md:table-cell px-4 py-2 whitespace-nowrap">
+        <div className="text-sm">
+          {transaction._id.toString().replace(/^[0-9a-f]{24}$/, id => `TXN${id.substr(-6).toUpperCase()}`)}
+        </div>
+      </td>
+      <td className="hidden sm:table-cell px-4 py-2">
         <div className="flex items-center space-x-2 relative">
           <PDFDownloadLink
             document={<TransactionReceipt transaction={transaction} customer={customer} />}
@@ -96,17 +184,25 @@ const TransactionRow = ({ transaction, customer }) => {
           )}
         </div>
       </td>
-      <td className="px-4 py-2 capitalize">
-        {transaction.type}
-        {transaction.description && ` - ${transaction.description}`}
+      <td className="hidden sm:table-cell px-4 py-2">
+        <div className="text-sm capitalize">
+          {transaction.type}
+          {transaction.description && (
+            <span className="text-gray-500 ml-2">
+              - {transaction.description}
+            </span>
+          )}
+        </div>
       </td>
-      <td className={`px-4 py-2 text-right ${
-        transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'
-      }`}>
-        {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+      <td className="hidden sm:table-cell px-4 py-2 text-right whitespace-nowrap">
+        <div className={`text-sm ${
+          transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'
+        }`}>
+          {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+        </div>
       </td>
-      <td className="px-4 py-2 text-right">
-        ${transaction.balanceAfter.toFixed(2)}
+      <td className="hidden sm:table-cell px-4 py-2 text-right whitespace-nowrap">
+        <div className="text-sm">${transaction.balanceAfter.toFixed(2)}</div>
       </td>
     </tr>
   );
@@ -178,12 +274,12 @@ const Transactions = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <h1 className="text-2xl font-bold">Transaction Management</h1>
         {selectedCustomer && (
           <button
             onClick={() => setShowTransactionModal(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+            className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
           >
             New Transaction
           </button>
@@ -191,15 +287,15 @@ const Transactions = () => {
       </div>
 
       {!selectedCustomer ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-4">Select Customer</h2>
           <CustomerSearch onCustomerSelect={handleCustomerSelect} />
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4">Selected Customer</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="font-semibold">Name</p>
                 <p>{selectedCustomer.name}</p>
@@ -228,10 +324,10 @@ const Transactions = () => {
           ) : (
             <>
               {transactions.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
-                  <div className="flex justify-between items-center mb-4">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
                     <h2 className="text-xl font-bold">Transaction History</h2>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-col sm:flex-row items-stretch gap-3 w-full lg:w-auto">
                       <PDFDownloadLink
                         document={<TransactionReceipt 
                           transactions={transactions}
@@ -239,84 +335,90 @@ const Transactions = () => {
                           isStatement={true}
                         />}
                         fileName={`statement_${selectedCustomer.accountNumber}.pdf`}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                        className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-center"
                       >
                         {({ loading }) => (loading ? 'Generating PDF...' : 'Download Statement')}
                       </PDFDownloadLink>
 
                       <button
                         onClick={() => setShowStatementEmailForm(!showStatementEmailForm)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                        className="flex-1 sm:flex-none bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 text-center"
                       >
                         Email Statement
                       </button>
 
                       {showStatementEmailForm && (
-                        <div className="absolute right-0 mt-32 bg-white p-4 rounded-lg shadow-lg border z-50 w-80">
-                          <form onSubmit={handleSendStatement} className="space-y-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">
-                                Email Address
-                              </label>
-                              <input
-                                type="email"
-                                value={statementEmail}
-                                onChange={(e) => setStatementEmail(e.target.value)}
-                                className="mt-1 w-full p-2 border rounded-md"
-                                required
-                              />
-                            </div>
-                            
-                            {statementError && (
-                              <div className="text-red-500 text-sm">{statementError}</div>
-                            )}
-                            {statementSuccess && (
-                              <div className="text-green-500 text-sm">Statement sent successfully!</div>
-                            )}
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                          <div className="bg-white p-6 rounded-lg shadow-xl w-96">
+                            <h3 className="text-lg font-semibold mb-4">Email Statement</h3>
+                            <form onSubmit={handleSendStatement} className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Email Address
+                                </label>
+                                <input
+                                  type="email"
+                                  value={statementEmail}
+                                  onChange={(e) => setStatementEmail(e.target.value)}
+                                  className="w-full p-2 border rounded-md"
+                                  placeholder="Enter email address"
+                                  required
+                                />
+                              </div>
+                              
+                              {statementError && (
+                                <div className="text-red-500 text-sm">{statementError}</div>
+                              )}
+                              {statementSuccess && (
+                                <div className="text-green-500 text-sm">Statement sent successfully!</div>
+                              )}
 
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => setShowStatementEmailForm(false)}
-                                className="text-sm text-gray-500 hover:text-gray-700"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                type="submit"
-                                disabled={sendingStatement}
-                                className="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600 disabled:bg-green-300"
-                              >
-                                {sendingStatement ? 'Sending...' : 'Send'}
-                              </button>
-                            </div>
-                          </form>
+                              <div className="flex justify-end space-x-3">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowStatementEmailForm(false)}
+                                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  type="submit"
+                                  disabled={sendingStatement}
+                                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:bg-green-300"
+                                >
+                                  {sendingStatement ? 'Sending...' : 'Send Statement'}
+                                </button>
+                              </div>
+                            </form>
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="px-4 py-2 text-left">Date</th>
-                        <th className="px-4 py-2 text-left">Transaction ID</th>
-                        <th className="px-4 py-2 text-left">Receipt</th>
-                        <th className="px-4 py-2 text-left">Type</th>
-                        <th className="px-4 py-2 text-right">Amount</th>
-                        <th className="px-4 py-2 text-right">Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.map((transaction) => (
-                        <TransactionRow 
-                          key={transaction._id} 
-                          transaction={transaction}
-                          customer={selectedCustomer}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50 hidden sm:table-header-group">
+                        <tr className="bg-gray-50">
+                          <th className="px-4 py-2 text-left">Date</th>
+                          <th className="px-4 py-2 text-left hidden md:table-cell">Transaction ID</th>
+                          <th className="px-4 py-2 text-left">Receipt</th>
+                          <th className="px-4 py-2 text-left">Type</th>
+                          <th className="px-4 py-2 text-right">Amount</th>
+                          <th className="px-4 py-2 text-right hidden sm:table-cell">Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {transactions.map((transaction) => (
+                          <TransactionRow 
+                            key={transaction._id} 
+                            transaction={transaction}
+                            customer={selectedCustomer}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </>

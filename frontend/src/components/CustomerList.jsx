@@ -5,6 +5,7 @@ const CustomerList = ({ onCustomerSelect }) => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadCustomers();
@@ -24,44 +25,62 @@ const CustomerList = ({ onCustomerSelect }) => {
     }
   };
 
+  const filteredCustomers = customers.filter(customer =>
+    customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <div className="text-center py-4">Loading customers...</div>;
   if (error) return <div className="text-red-500 text-center py-4">{error}</div>;
 
   return (
     <div className="bg-white rounded-lg shadow-md">
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-semibold">Customer List</h2>
-      </div>
-      <div className="divide-y">
-        {customers.length > 0 ? (
-          customers.map((customer) => (
-            <div
-              key={customer._id}
-              className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => onCustomerSelect(customer)}
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-medium">{customer.name}</h3>
-                  <p className="text-sm text-gray-600">
-                    Account: {customer.accountNumber}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">
-                    Balance: ${customer.balance.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-gray-600 capitalize">
-                    Type: {customer.accountType}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="p-4 text-center text-gray-500">
-            No customers found
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-4">
+          <h2 className="text-xl font-bold">Customer List</h2>
+          <div className="w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search customers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+            />
           </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left">Name</th>
+                <th className="px-4 py-2 text-left">Account Number</th>
+                <th className="px-4 py-2 text-left">Account Type</th>
+                <th className="px-4 py-2 text-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {filteredCustomers.map((customer) => (
+                <tr
+                  key={customer._id}
+                  onClick={() => onCustomerSelect(customer)}
+                  className="hover:bg-gray-50 cursor-pointer"
+                >
+                  <td className="px-4 py-2">{customer.name}</td>
+                  <td className="px-4 py-2">{customer.accountNumber}</td>
+                  <td className="px-4 py-2 capitalize">{customer.accountType}</td>
+                  <td className="px-4 py-2 text-right">
+                    ${customer.balance.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {loading && <div className="text-center py-4">Loading...</div>}
+        {error && <div className="text-red-500 text-center py-4">{error}</div>}
+        {!loading && !error && filteredCustomers.length === 0 && (
+          <div className="text-gray-500 text-center py-4">No customers found</div>
         )}
       </div>
     </div>

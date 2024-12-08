@@ -51,27 +51,35 @@ function App() {
 
   const CustomerManagement = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <h1 className="text-2xl font-bold">Customer Management</h1>
         <button
           onClick={() => setShowAddCustomer(true)}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+          className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
         >
           Add Customer
         </button>
       </div>
 
-      <CustomerList onCustomerSelect={handleCustomerSelect} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="w-full overflow-x-auto">
+          <CustomerList onCustomerSelect={handleCustomerSelect} />
+        </div>
 
-      {selectedCustomer && (
-        <>
-          <AccountDetails customer={selectedCustomer} />
-          <CustomerInfoUpdate 
-            customer={selectedCustomer}
-            onUpdate={handleCustomerUpdate}
-          />
-        </>
-      )}
+        {selectedCustomer && (
+          <div className="space-y-6">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md overflow-x-auto">
+              <AccountDetails customer={selectedCustomer} />
+            </div>
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+              <CustomerInfoUpdate 
+                customer={selectedCustomer}
+                onUpdate={handleCustomerUpdate}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {showAddCustomer && (
         <AddCustomer
@@ -87,10 +95,25 @@ function App() {
 
   const SearchPage = () => (
     <div className="space-y-6">
-      <CustomerSearch onCustomerSelect={handleCustomerSelect} />
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold mb-6">Search Customers</h1>
+        <div className="max-w-xl">
+          <CustomerSearch onCustomerSelect={handleCustomerSelect} />
+        </div>
+      </div>
       
       {selectedCustomer && (
-        <AccountDetails customer={selectedCustomer} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <AccountDetails customer={selectedCustomer} />
+          </div>
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <CustomerInfoUpdate 
+              customer={selectedCustomer}
+              onUpdate={handleCustomerUpdate}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
