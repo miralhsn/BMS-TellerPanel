@@ -1,6 +1,6 @@
 # Teller Panel
 
-A full-stack web application built with React (Vite) and Express.js.
+A full-stack banking teller dashboard with backend and frontend containerized using Docker.
 
 ## Project Structure
 
@@ -28,7 +28,7 @@ A full-stack web application built with React (Vite) and Express.js.
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/miralhsn/teller-panel.git
 cd teller-panel
 ```
 
@@ -56,9 +56,13 @@ npm run dev
 npm run dev
 ```
 
-## Features
-- User Authentication
-- [Add your features here]
+## Tech Stack
+- Node.js
+- Express
+- React
+- MongoDB
+- Docker
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
